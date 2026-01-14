@@ -72,8 +72,6 @@ public class Reticle_Move : MonoBehaviour
     {
         data = sensor.GetComponent<SensorFetvher>();
         data.OnDeviceIdsUpdated.AddListener(GenerateReticles);
-
-
     }
 
     void GenerateReticles(List<string> ids)
