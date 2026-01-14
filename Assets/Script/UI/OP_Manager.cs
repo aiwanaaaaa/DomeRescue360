@@ -27,6 +27,6 @@ public class OP_Manager : MonoBehaviour
 
         if (time >= recture_time)
  
-            feed.gameObject.transform.localScale += new Vector3(1,1,0);
+            feed.gameObject.transform.localScale += new Vector3(10,10,0);
     }
 }

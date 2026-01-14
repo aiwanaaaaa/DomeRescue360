@@ -10,6 +10,8 @@ public class SensorFetvher : MonoBehaviour
     public Dictionary<string, SensorData> sensorMap = new();            // 各デバイスのセンサーデータ
     public UnityEvent<List<string>> OnDeviceIdsUpdated;
 
+    // 外部から安全に最新の Quaternion を取得するためのプロパティ
+    public Quaternion LatestRotation { get; private set; } = Quaternion.identity;
     void Start()
     {
         StartCoroutine(FetchDeviceIds());
@@ -28,7 +30,7 @@ public class SensorFetvher : MonoBehaviour
             string json = request.downloadHandler.text;
             deviceIdList = JsonArrayParsor.Parse(json);
             OnDeviceIdsUpdated.Invoke(deviceIdList); // ← イベント発火！
-            Debug.Log($"取得された Device ID 数: {deviceIdList.Count}");
+            //Debug.Log($"取得された Device ID 数: {deviceIdList.Count}");
             foreach (string id in deviceIdList)
             {
                 Debug.Log($" Device ID: {id}");
@@ -62,7 +64,8 @@ public class SensorFetvher : MonoBehaviour
                     SensorData data = JsonUtility.FromJson<SensorData>(req.downloadHandler.text);
                     sensorMap[id] = data;
 
-                    Debug.Log($"受信 - α:{data.alpha} β:{data.beta} γ:{data.gamma} x:{data.accel_x} y:{data.accel_y} z:{data.accel_z}");
+                    LatestRotation = Quaternion.Euler(data.alpha, data.beta, data.gamma);
+                    //Debug.Log($"受信 - α:{data.alpha} β:{data.beta} γ:{data.gamma} x:{data.accel_x} y:{data.accel_y} z:{data.accel_z}");
                 }
                 else
                 {
@@ -71,7 +74,7 @@ public class SensorFetvher : MonoBehaviour
             }
 
             //毎フレーム更新すると死ぬので200msごとに更新（ゲームの動きを見て調整必須）
-           // yield return new WaitForSeconds(0.05f); // ← 50msごとに更新
+            yield return new WaitForSeconds(0.05f); // ← 50msごとに更新
         }
     }
 }

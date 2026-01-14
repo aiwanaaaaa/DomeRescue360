@@ -1,5 +1,7 @@
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Reticle_Move : MonoBehaviour
 {
@@ -7,9 +9,13 @@ public class Reticle_Move : MonoBehaviour
     [SerializeField] GameObject sensor;
     private SensorFetvher data;
     [SerializeField] GameObject reticlePrefab;
+    [SerializeField] GameObject[] reticle;
     private Dictionary<string, GameObject> reticleMap = new();
+    private RectTransform Recttransform;
+    public float speed = 100.0f;
 
     private bool gamestart = false;
+
     void Start()
     {
 
@@ -28,14 +34,23 @@ public class Reticle_Move : MonoBehaviour
                     float x = sensor.alpha;
                     float y = sensor.beta;
 
-                    if(x > 0 && x < 30)  x *= 6;
-                    else if(x > 30 && x < 180)  x = 200;
-                    else if (x > 330 && x < 360) x = (x - 360) * 6;
-                    else if (x < 330 && x > 260) x = -190;
+                    Vector3 targetPosition;
+                    if (x > 180)
+                    {
+                       targetPosition = new Vector3((360-x)*6, y*4, 0f);
+                    }
+                    else
+                    {
+                       targetPosition = new Vector3((-x)*6, y*4, 0f);
+                    }
+                   // Debug.Log(targetPosition);
 
-                    if(y > 50 && y < 180)  x = 100 * 2; 
-                    if(y > 180 && y < 310)  x = -100 * 2; 
-                    reticle.transform.localPosition = new Vector3(-x, y, 0); // World Space Canvasなら意外とこれが効きます
+                    Recttransform.localPosition = Vector3.MoveTowards(
+                        Recttransform.localPosition,     // 現在地
+                        targetPosition,         // 目標地
+                        speed * Time.deltaTime  // 一度に移動する最大距離
+                    );
+
 
                 }
                 else
@@ -52,20 +67,27 @@ public class Reticle_Move : MonoBehaviour
             gamestart = true;
         }
     }
-    
+
     void OnEnable()
     {
         data = sensor.GetComponent<SensorFetvher>();
         data.OnDeviceIdsUpdated.AddListener(GenerateReticles);
+
+
     }
 
     void GenerateReticles(List<string> ids)
     {
         foreach (string id in ids)
         {
-            GameObject reticle = Instantiate(reticlePrefab);
-            reticleMap[id] = reticle;
+            reticleMap[id] = reticlePrefab;
         }
+        for (int i = 0; i < data.deviceIdList.Count; i++)
+        {
+            reticle[i].SetActive(true);
+            Recttransform = reticle[i].GetComponent<RectTransform>();
+        }
+
     }
 }
 
