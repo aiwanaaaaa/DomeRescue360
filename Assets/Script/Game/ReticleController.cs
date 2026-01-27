@@ -43,6 +43,20 @@ public class ReticleController : MonoBehaviour
                     {
                         Debug.Log($"{target.name} を捉えました！");
                         // ここにターゲットへの処理を記述
+                        Image image = target.transform.GetComponentInChildren<Image>(true);
+
+                            if (image != null)
+                            {
+                                Debug.Log($"Found Image component in {target.name}");
+                                image.fillAmount += 0.01f;
+                                if(image.fillAmount >= 1f)
+                                {
+                                    Debug.Log($"{target.name} の処理が完了しました！");
+                                    // 処理完了後の追加アクションをここに記述
+                                    target.gameObject.SetActive(false);
+                                }
+                            }
+                        
                     }
                 }
             }
